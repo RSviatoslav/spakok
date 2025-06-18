@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гірський Затишок | Оренда будиночків у Карпатах</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Flatpickr (календар) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Нова палітра */
+        :root {
+            --primary-color: #38A89D; /* Бірюзовий */
+            --primary-hover: #2F8B81;
+            --primary-light: #E6FFFA;
+            --text-dark: #2D3748;
+            --text-light: #4A5568;
+            --bg-main: #F7FAFC;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        /* Стилі для активних елементів з новою палітрою */
+        .primary-bg { background-color: var(--primary-color); }
+        .primary-text { color: var(--primary-color); }
+        .primary-border { border-color: var(--primary-color); }
+        .hover-primary-bg:hover { background-color: var(--primary-hover); }
+
+        .flatpickr-day.selected {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .flatpickr-day.inRange {
+            background-color: var(--primary-light);
+            box-shadow: -5px 0 0 var(--primary-light), 5px 0 0 var(--primary-light);
+        }
+        
+        .filter-active {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Стилі для модального вікна */
+        .modal-overlay {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s 0.3s, opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        /* Зірковий рейтинг */
+        .star-rating {
+            color: #FBBF24; /* amber-400 */
+        }
+        /* Спінер для завантаження */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-4">
+                <a href="#" class="text-2xl font-bold text-gray-800">Spadok</a>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#booking" class="text-gray-600 hover:primary-text transition-colors">Бронювання</a>
+                    <a href="#features" class="text-gray-600 hover:primary-text transition-colors">Переваги</a>
+                    <a href="#footer" class="text-gray-600 hover:primary-text transition-colors">Контакти</a>
+                </div>
+                <a href="#booking" class="hidden md:inline-block primary-bg text-white font-medium py-2 px-4 rounded-lg hover-primary-bg transition-all">
+                    Обрати будинок
+                </a>
+                <button id="mobile-menu-button" class="md:hidden text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </nav>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2">
+             <a href="#booking" class="block text-gray-600 hover:primary-text transition-colors">Бронювання</a>
+             <a href="#features" class="block text-gray-600 hover:primary-text transition-colors">Переваги</a>
+             <a href="#footer" class="block text-gray-600 hover:primary-text transition-colors">Контакти</a>
+             <a href="#booking" class="block primary-bg text-white font-medium py-2 px-4 rounded-lg hover-primary-bg transition-all text-center mt-2">
+                 Обрати будинок
+             </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative h-[60vh] md:h-[80vh] bg-cover bg-center" style="background-image: url('https://i.pinimg.com/736x/ae/0a/ff/ae0affffcec29d3294dd343e1abc82cc.jpg');">
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">Відчуйте гармонію з природою</h1>
+            <p class="text-lg md:text-xl max-w-2xl">Ваш особистий затишок серед величних Карпат.</p>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-4 py-12 md:py-20">
+        
+        <!-- Booking and Filters Section -->
+        <section id="booking" class="mb-16 scroll-mt-20">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg -mt-32 md:-mt-48 relative z-20">
+                <form id="filter-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Dates -->
+                        <div class="lg:col-span-2">
+                            <label for="dates" class="block text-sm font-medium text-gray-700 mb-2">Дати поїздки</label>
+                            <input id="dates" type="text" placeholder="Оберіть дати для вашого відпочинку" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                        </div>
+                        <!-- Guests -->
+                        <div>
+                            <label for="guests" class="block text-sm font-medium text-gray-700 mb-2">Кількість гостей</label>
+                            <select id="guests" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white">
+                                <option value="1">1 гість</option>
+                                <option value="2" selected>2 гостя</option>
+                                <option value="3">3 гостя</option>
+                                <option value="4">4 гостя</option>
+                                <option value="5">5+ гостей</option>
+                            </select>
+                        </div>
+                        <!-- Price -->
+                        <div>
+                             <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Ціна за ніч (до <span id="price-value">5000</span> грн)</label>
+                            <input id="price" type="range" min="1000" max="10000" value="5000" step="500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                         <h3 class="text-sm font-medium text-gray-700 mb-3">Бажані зручності</h3>
+                         <div class="flex flex-wrap gap-3">
+                             <button type="button" data-filter="amenity" data-value="wifi" class="px-4 py-2 border rounded-full text-sm text-gray-600 hover:primary-border transition-all">Wi-Fi</button>
+                             <button type="button" data-filter="amenity" data-value="pets" class="px-4 py-2 border rounded-full text-sm text-gray-600 hover:primary-border transition-all">Можна з тваринами</button>
+                             <button type="button" data-filter="amenity" data-value="jacuzzi" class="px-4 py-2 border rounded-full text-sm text-gray-600 hover:primary-border transition-all">Джакузі / Чан</button>
+                             <button type="button" data-filter="amenity" data-value="sauna" class="px-4 py-2 border rounded-full text-sm text-gray-600 hover:primary-border transition-all">Сауна</button>
+                             <button type="button" data-filter="amenity" data-value="pool" class="px-4 py-2 border rounded-full text-sm text-gray-600 hover:primary-border transition-all">Басейн</button>
+                         </div>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button type="submit" class="primary-bg text-white font-bold py-3 px-10 rounded-lg hover-primary-bg transition-all text-lg shadow-lg shadow-teal-500/20 hover:shadow-xl hover:shadow-teal-500/30">
+                            Знайти ідеальний дім
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Cabin Listings -->
+        <section id="cabins-list">
+             <div id="no-results" class="hidden text-center py-12">
+                <h3 class="text-2xl font-semibold text-gray-700">На жаль, нічого не знайдено</h3>
+                <p class="text-gray-500 mt-2">Спробуйте змінити параметри пошуку або скинути фільтри.</p>
+            </div>
+            <div id="results-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Cabin cards will be inserted here by JavaScript -->
+            </div>
+        </section>
+        
+         <!-- Features Section -->
+        <section id="features" class="py-16 md:py-24 text-center scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Ваш ідеальний відпочинок у деталях</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">Ми створили простір, де кожен елемент сприяє вашому розслабленню та натхненню.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Feature items... -->
+                 <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all">
+                    <div class="bg-teal-100 text-teal-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Неймовірні краєвиди</h3>
+                    <p class="text-gray-500">Панорамні вікна та тераси з видом на гори.</p>
+                </div>
+                 <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all">
+                    <div class="bg-teal-100 text-teal-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Повна приватність</h3>
+                    <p class="text-gray-500">Будиночки розташовані на відстані один від одного.</p>
+                </div>
+                 <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all">
+                    <div class="bg-teal-100 text-teal-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Зручне розташування</h3>
+                    <p class="text-gray-500">Легкий доступ до туристичних маршрутів та пам'яток.</p>
+                </div>
+                 <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all">
+                    <div class="bg-teal-100 text-teal-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Сучасний комфорт</h3>
+                    <p class="text-gray-500">Все необхідне для безтурботного відпочинку.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-gray-800 text-white scroll-mt-20">
+        <!-- ...footer content... -->
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Гірський Затишок</h3>
+                    <p class="text-gray-400">Ваше місце сили та спокою в Карпатах.</p>
+                </div>
+                 <div>
+                    <h3 class="text-lg font-semibold mb-4">Навігація</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Головна</a></li>
+                        <li><a href="#booking" class="text-gray-400 hover:text-white">Будиночки</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white">Переваги</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакти</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Email: <a href="mailto:info@mountain-retreat.com" class="hover:text-white">info@mountain-retreat.com</a></li>
+                        <li>Телефон: <a href="tel:+380991234567" class="hover:text-white">+38 099 123 45 67</a></li>
+                        <li>Адреса: с. Поляниця, Івано-Франківська обл.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-10 border-t border-gray-700 pt-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2024 Гірський Затишок. Всі права захищено.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Modal -->
+    <div id="cabin-modal" class="modal-overlay fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[100]">
+        <div id="modal-content" class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+           <!-- Content will be injected by JavaScript -->
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- Mobile Menu, Calendar, Price Slider... (no changes here) ---
+         const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        flatpickr("#dates", {
+            mode: "range", minDate: "today", dateFormat: "d.m.Y",
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: { shorthand: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"], longhand: ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"] },
+                months: { shorthand: ["Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру"], longhand: ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"] },
+            }
+        });
+
+        const priceInput = document.getElementById('price');
+        const priceValue = document.getElementById('price-value');
+        priceInput.addEventListener('input', (event) => {
+            priceValue.textContent = event.target.value;
+        });
+
+
+        // --- Sample Data for Cabins (Expanded) ---
+        const cabins = [
+            { id: 1, name: 'Сосновий Рай', guests: 2, price: 2500, rating: 4.8, reviews: 32, frequentlyBooked: true, image: 'https://placehold.co/600x400/38a89d/ffffff?text=Сосновий+Рай', images: ['https://placehold.co/800x600/38a89d/ffffff?text=Вигляд+з+вікна', 'https://placehold.co/800x600/4a5568/ffffff?text=Спальня', 'https://placehold.co/800x600/6b7280/ffffff?text=Тераса'], description: 'Ідеальний вибір для романтичного відпочинку на двох. Насолоджуйтесь тишею соснового лісу та неймовірними заходами сонця з власної тераси з гарячим чаном.', amenities: { wifi: true, pets: false, jacuzzi: true, sauna: false, pool: false }, guestReviews: [{author: "Олена", text:"Це було неймовірно! Дуже затишно, чисто, а краєвид просто захоплює дух."}] },
+            { id: 2, name: 'Лісова Казка', guests: 4, price: 4200, rating: 4.9, reviews: 45, frequentlyBooked: true, image: 'https://placehold.co/600x400/2f8b81/ffffff?text=Лісова+Казка', images: ['https://placehold.co/800x600/2f8b81/ffffff?text=Вітальня', 'https://placehold.co/800x600/4a5568/ffffff?text=Кухня', 'https://placehold.co/800x600/6b7280/ffffff?text=Сауна'], description: 'Просторий двоповерховий будинок для сімейного відпочинку або компанії друзів. Власна сауна допоможе розслабитись після активного дня в горах.', amenities: { wifi: true, pets: true, jacuzzi: false, sauna: true, pool: false }, guestReviews: [{author: "Андрій", text:"Відпочивали сім'єю, всі в захваті. Дітям сподобалось, що можна з нашим песиком. Сауна - топ!"}] },
+            { id: 3, name: 'Гірське Джерело', guests: 3, price: 3100, rating: 4.7, reviews: 28, frequentlyBooked: false, image: 'https://placehold.co/600x400/5a9a94/ffffff?text=Гірське+Джерело', images: ['https://placehold.co/800x600/5a9a94/ffffff?text=Басейн', 'https://placehold.co/800x600/4a5568/ffffff?text=Інтер\'єр', 'https://placehold.co/800x600/6b7280/ffffff?text=Вигляд+зверху'], description: 'Сучасний будинок з доступом до спільного басейну з підігрівом. Чудове місце, щоб поєднати активний відпочинок та повний релакс.', amenities: { wifi: true, pets: false, jacuzzi: false, sauna: false, pool: true }, guestReviews: [{author: "Ірина", text:"Чисто, сучасно, є все необхідне. Басейн з чудовим видом на гори - це щось!"}] },
+            { id: 4, name: 'Панорама Карпат', guests: 5, price: 6000, rating: 5.0, reviews: 51, frequentlyBooked: true, image: 'https://placehold.co/600x400/81e6d9/ffffff?text=Панорама+Карпат', images: ['https://placehold.co/800x600/81e6d9/ffffff?text=Панорамні+вікна', 'https://placehold.co/800x600/4a5568/ffffff?text=Спальня+люкс', 'https://placehold.co/800x600/6b7280/ffffff?text=Джакузі'], description: 'Ексклюзивний котедж з панорамними вікнами на 360 градусів. Найкращий вибір для тих, хто цінує розкіш, простір та неперевершені краєвиди. Включає всі можливі зручності.', amenities: { wifi: true, pets: true, jacuzzi: true, sauna: true, pool: true }, guestReviews: [{author: "Максим", text:"10/10. Це найкраще місце, де ми коли-небудь були. Вид з вікон вартий кожної гривні."}] }
+        ];
+
+        // --- Elements ---
+        const resultsContainer = document.getElementById('results-container');
+        const noResultsMessage = document.getElementById('no-results');
+        const filterForm = document.getElementById('filter-form');
+        const amenityButtons = document.querySelectorAll('button[data-filter="amenity"]');
+        const modal = document.getElementById('cabin-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        let activeAmenities = [];
+        
+        // --- Amenity Button Logic ---
+        amenityButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('filter-active');
+                const amenity = button.dataset.value;
+                if (activeAmenities.includes(amenity)) {
+                    activeAmenities = activeAmenities.filter(a => a !== amenity);
+                } else {
+                    activeAmenities.push(amenity);
+                }
+            });
+        });
+
+        // --- Render Function ---
+        const renderCabins = (filteredCabins) => {
+            resultsContainer.innerHTML = '';
+            noResultsMessage.classList.toggle('hidden', filteredCabins.length > 0);
+            
+            filteredCabins.forEach(cabin => {
+                const cabinCard = `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group flex flex-col">
+                        <div class="relative">
+                            <img class="w-full h-56 object-cover" src="${cabin.image}" alt="${cabin.name}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/ccc/fff?text=Image+Not+Found';">
+                            <div class="absolute top-4 right-4 primary-bg text-white text-sm font-semibold py-1 px-3 rounded-full">${cabin.price} грн/ніч</div>
+                            ${cabin.frequentlyBooked ? '<div class="absolute top-4 left-4 bg-amber-400 text-white text-xs font-semibold py-1 px-2 rounded-full">Часто бронюють</div>' : ''}
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-1">${cabin.name}</h3>
+                            <div class="flex items-center mb-2 text-sm text-gray-500">
+                                <div class="star-rating">★★★★★</div>
+                                <span class="ml-2">${cabin.rating} (${cabin.reviews} відгуків)</span>
+                            </div>
+                            <p class="text-gray-500 mb-4">До ${cabin.guests} гостей</p>
+                            <div class="mt-auto">
+                                <button data-cabin-id="${cabin.id}" class="w-full mt-2 bg-gray-800 text-white font-medium py-3 px-5 rounded-lg group-hover:primary-bg transition-all details-btn">
+                                    Переглянути деталі
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.innerHTML += cabinCard;
+            });
+        };
+
+        // --- Filter Logic ---
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const guestCount = parseInt(document.getElementById('guests').value);
+            const maxPrice = parseInt(document.getElementById('price').value);
+
+            const filtered = cabins.filter(cabin => {
+                const meetsGuests = guestCount === 5 ? cabin.guests >= 5 : cabin.guests <= guestCount;
+                const meetsPrice = cabin.price <= maxPrice;
+                const meetsAmenities = activeAmenities.every(amenity => cabin.amenities[amenity]);
+                return meetsGuests && meetsPrice && meetsAmenities;
+            });
+
+            renderCabins(filtered);
+        });
+        
+        // --- Gemini API Call ---
+        async function generateItinerary(cabin) {
+            const itineraryContainer = document.getElementById('itinerary-content');
+            const loader = document.getElementById('itinerary-loader');
+            
+            loader.classList.remove('hidden');
+            itineraryContainer.innerHTML = '';
+
+            const amenityNames = {wifi: 'Wi-Fi', pets: 'можливість перебування з тваринами', jacuzzi: 'джакузі або чан', sauna: 'сауна', pool: 'басейн'};
+            const availableAmenities = Object.entries(cabin.amenities)
+                .filter(([key, value]) => value)
+                .map(([key]) => amenityNames[key])
+                .join(', ');
+
+            const prompt = `Ти — креативний помічник для планування подорожей в українські Карпати. Користувач розглядає для оренди будиночок "${cabin.name}". Основні переваги цього будинку: ${availableAmenities}. Створи, будь ласка, захоплюючий та реалістичний план відпочинку на 3 дні для ${cabin.guests} гостей. Включи активності, що відповідають перевагам будинку, а також загальні ідеї для відпочинку в горах (наприклад, походи, місцева кухня, релакс). Відповідь надай українською мовою. Відформатуй відповідь у вигляді списків для кожного дня, використовуючи **День 1:**, **День 2:**, і **День 3:** як заголовки.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // API key will be provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0) {
+                    let text = result.candidates[0].content.parts[0].text;
+                    // Format text for HTML display
+                    text = text
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="block text-lg mt-4 mb-2">$1</strong>') // Bold for Day headers
+                        .replace(/\n/g, '<br>');
+                    itineraryContainer.innerHTML = text;
+                } else {
+                   itineraryContainer.innerHTML = '<p class="text-red-500">Не вдалося згенерувати ідеї. Будь ласка, спробуйте пізніше.</p>';
+                }
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                itineraryContainer.innerHTML = `<p class="text-red-500">Виникла помилка: ${error.message}. Будь ласка, спробуйте пізніше.</p>`;
+            } finally {
+                 loader.classList.add('hidden');
+            }
+        }
+
+
+        // --- Modal Logic ---
+        const openModal = (cabinId) => {
+            const cabin = cabins.find(c => c.id === parseInt(cabinId));
+            if (!cabin) return;
+            
+            const amenitiesHTML = Object.entries(cabin.amenities).map(([key, value]) => {
+                if (!value) return '';
+                const labels = {wifi: 'Wi-Fi', pets: 'Можна з тваринами', jacuzzi: 'Джакузі / Чан', sauna: 'Сауна', pool: 'Басейн'};
+                return `<li class="flex items-center"><svg class="w-5 h-5 text-teal-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>${labels[key]}</li>`;
+            }).join('');
+
+            const reviewsHTML = cabin.guestReviews.map(review => `
+                <div class="border-t pt-4 mt-4">
+                    <p class="text-gray-600 italic">"${review.text}"</p>
+                    <p class="text-right font-semibold text-gray-700 mt-2">- ${review.author}</p>
+                </div>
+            `).join('');
+
+            modalContent.innerHTML = `
+                <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-10 p-2 leading-none text-2xl">&times;</button>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                    <!-- Image Gallery -->
+                    <div class="p-2">
+                        <img class="w-full h-auto object-cover rounded-lg" src="${cabin.images[0]}" alt="${cabin.name}">
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                             <img class="w-full h-auto object-cover rounded-lg" src="${cabin.images[1]}" alt="${cabin.name}">
+                             <img class="w-full h-auto object-cover rounded-lg" src="${cabin.images[2]}" alt="${cabin.name}">
+                        </div>
+                    </div>
+                    <!-- Details -->
+                    <div class="p-6 md:p-8 flex flex-col">
+                        <h2 class="text-3xl font-bold mb-2">${cabin.name}</h2>
+                        <div class="flex items-center mb-4 text-sm text-gray-500">
+                           <div class="star-rating">★★★★★</div>
+                           <span class="ml-2">${cabin.rating} (${cabin.reviews} відгуків)</span>
+                        </div>
+                        <p class="text-gray-600 mb-6">${cabin.description}</p>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-lg mb-3">Основні зручності:</h3>
+                            <ul class="space-y-2 text-gray-700">${amenitiesHTML}</ul>
+                        </div>
+                        
+                         <div class="mb-6">
+                            <h3 class="font-semibold text-lg mb-3">Що кажуть гості:</h3>
+                            ${reviewsHTML}
+                        </div>
+                        
+                        <!-- Gemini Feature Section -->
+                        <div class="bg-teal-50 border-l-4 border-teal-500 p-4 rounded-r-lg mb-6">
+                            <h3 class="font-semibold text-lg mb-3">✨ Персональний планувальник відпочинку</h3>
+                            <p class="text-gray-600 text-sm mb-4">Не знаєте, чим зайнятись? Дозвольте нашому AI-помічнику створити для вас ідеальний план перебування!</p>
+                            <button id="generate-itinerary-btn" class="w-full border-2 primary-border primary-text font-bold py-2 px-4 rounded-lg hover:primary-bg hover:text-white transition-all">
+                                Згенерувати ідеї
+                            </button>
+                            <div id="itinerary-loader" class="hidden mx-auto mt-4 loader"></div>
+                            <div id="itinerary-content" class="mt-4 text-gray-700 text-sm"></div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="text-3xl font-bold text-right mb-4 primary-text">${cabin.price} грн <span class="text-base font-normal text-gray-500">/ ніч</span></div>
+                            <button class="w-full primary-bg text-white font-bold py-4 px-6 rounded-lg hover-primary-bg transition-all text-xl">Зарезервувати відпочинок</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Attach close listeners
+            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('generate-itinerary-btn').addEventListener('click', () => generateItinerary(cabin));
+        };
+        
+        const closeModal = () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            // Clear modal content to stop video players, etc.
+            modalContent.innerHTML = '';
+        };
+
+        // Event delegation for details buttons
+        resultsContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.details-btn');
+            if(button) {
+                const cabinId = button.dataset.cabinId;
+                openModal(cabinId);
+            }
+        });
+        
+        // Close modal on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape" && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // --- Initial Render ---
+        renderCabins(cabins);
+    });
+    </script>
+</body>
+</html>
